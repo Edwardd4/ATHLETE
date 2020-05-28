@@ -1,0 +1,172 @@
+using System;
+using System.Collections.Generic;
+
+namespace Sports
+{
+//    Да се състави програма реализираща обект „Спортист“.                      ok
+//    Да бъдат създадени следни полета: име, години брой приети и изразходвани калории.          ok
+//    Да бъдат направени поне 3 инстанции. ok
+//    Да се реализират следните методи :
+//●	Даване пълни данни за спортист. ок
+//●	Възможност за променя на калориите (приети и изразходвани).     ок
+//●	Отчита калорийният баланс на общо на всички спортисти.  ок
+
+
+   
+    Class Athlete    //Реализиран Обект Спортист.
+    {
+        public string name { get; set; }  //поле:Име
+        public int age { get; set; }     //поле:Години
+
+        public Athlete(string name, int age)
+        {
+            this.name = name;
+            this.age = age;
+        }
+
+print('Калориен прием..')
+
+# Години
+age = int(input("Въведи годинитe: "))
+
+# Напиши M или F за пол
+while True:
+    try:
+        sex = str(input("Пол (M за Мъж и F за Жена): "))  
+        if sex not in ['M','F']:
+            raise AssertionError('Моля избери буквата M или F')
+        break
+    except AssertionError as e:
+        print(e)
+        
+# Въведи теглото в КГ
+while True:
+    try:
+        weight = float(input("Въведи теглото в КГ: "))
+        # asserting weight is in Kg
+        if not weight < 120:
+            raise AssertionError('Теглото трябва да бъде в Kg. тоест : 61, 84..')
+        break
+    except AssertionError as e:
+        print(e)    
+        
+# Въведи Височината в Сантиметри
+while True:
+    try:
+        height = float(input("Въведи височината в Сантиметри: "))
+        # asserting height in cm
+        if not height > 100:
+            raise AssertionError('Височината трябва да е в сантиметри. тоест: 167, 179..')
+        break
+    except AssertionError as e:
+        print(e)            
+
+C = Calories(тегло, височина, години, пол)
+
+activity = float(input('''
+1.2 - Почти не активен: Малко или никаква физическа активност.
+1.3 - Малко Активен: Леко трениращ или от 1 до 3 дни в седмицата.
+1.5 - Нормално Активен: Нормално трениращ или от 3 до 5 дни в седмицата.
+1.7 - Много Активен: Много трениращ или от 6 до 7 дни в седмицата.
+1.9 - Екстремно Активен: Тежко трениращ всеки ден или доста физически дейности и тренировки. 
+Изберете формата си от таблицата по-горе (номер между 1.2 и 1.9): '''))
+
+print('''Дневен прием :
+{} for maintaining
+{} for losing
+{} for gaining'''.format(C.TDEE(act_mult = activity), C.cut(act_mult = activity), C.bulk(act_mult = activity)))
+
+
+# Въведете цел
+while True:
+    try:
+        goal = str(input("Каква е целта ти? Въведи M за поддържане , L за загуба на тегло или  G за покачване на мускулна маса: "))  
+        if goal not in ['M','L','G']:
+            raise AssertionError('Моля въведете буквата M, L или G')
+        break
+    except AssertionError as e:
+        print(e)
+        
+if goal == 'M':
+    total_cal = C.TDEE(act_mult = activity)
+elif goal == 'L':
+    total_cal = C.cut(act_mult = activity)
+elif goal == 'G':
+    total_cal = C.bulk(act_mult = activity)
+    
+    
+protein = C.protein_intake(тегло)
+
+
+print('''Дневния ти прием на протеин е : {} грама'''.format(protein))
+
+class Calories():
+    """
+    А клас който представлява калориите.
+    ...
+    Attributes
+    ----------
+    weight : float
+        тегло на човека
+    height : float
+        височина на човека
+    age : int
+        години на човека
+    sex : str 
+        пол на човека (F or M)
+    """
+    
+    def __init__(self, weight, height, age, sex):
+        self.weight = weight
+        self.height = height
+        self.age = age
+        self.sex = sex
+             
+    def bf(self):
+        '''Измерване на мазнини (не е нужно в момента) '''
+        
+        bf = 10.2107142857142+1.22571429*self.accu_mesure-0.01428571*self.accu_mesure**2
+        return round(bf,1)
+       
+    def LBM(self):       
+        '''Измерване на маса'''
+        
+        return self.weight*(1-self.bf()/100)
+    
+    def BMR(self, sex):        
+        '''Измерване на метаболизма'''
+        
+        #Harris–Benedict equation
+        if sex == "M":
+            bmr = ((10*self.weight) + (6.25*self.height) - (5*self.age) + 5)
+        else:   
+            bmr = ((10*self.weight) + (6.25*self.height) - (5*self.age) - 161)
+            #bmr = 370 + 21.6*self.LBM()
+        return bmr
+     
+    def TDEE(self, act_mult = 1.4):        
+        '''Измерване на изразходената енергия дневно'''
+        
+        return round(self.BMR(self.sex)*act_mult)
+    
+    def bulk(self, percentage = 0.2, act_mult = 1.4):        
+        '''Измерване на калории , спрямо масата''' 
+        
+        return round(self.TDEE(act_mult = act_mult)*(1+percentage))
+    
+    def cut(self, percentage = 0.2, act_mult = 1.4):        
+        '''Измерване на отрязаните калории'''
+        
+        return round(self.TDEE(act_mult = act_mult)*(1-percentage))
+    
+    def protein_intake(self, weight, mult = 2.2):       
+        '''Измерване на приема на протеин'''
+        
+        return round(self.weight*mult)
+
+}
+
+            return 0;
+        }
+    }
+}
